@@ -7,9 +7,11 @@ member of staff approves that exact refund.**
 
 It does not stop prompt injection. It bounds what a fooled agent can do to money.
 
-**Demo video (2 min 14 s, silent, captioned):** [docs/demo.mp4](docs/demo.mp4). It shows the
-real gateway and the real Claude agent against the fake PayPal, so its refund ids are not
-sandbox ids. The sandbox results are under [Evidence](#evidence).
+**Demo (2 min 14 s, silent, captioned).** It shows the real gateway and the real Claude
+agent against the fake PayPal, so its refund ids are not sandbox ids.
+[Download as MP4](https://github.com/saintparish4/countersign/raw/main/docs/demo.mp4).
+
+![Countersign demo: a refund, a replay, a denied injection, a held refund approved by staff, and the audit trail](docs/demo.gif) The sandbox results are under [Evidence](#evidence).
 
 Built solo in under 48 hours for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/)
 (Devpost, November 2026).
