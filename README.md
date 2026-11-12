@@ -11,7 +11,9 @@ It does not stop prompt injection. It bounds what a fooled agent can do to money
 agent against the fake PayPal, so its refund ids are not sandbox ids.
 [Download as MP4](https://github.com/saintparish4/countersign/raw/main/docs/demo.mp4).
 
-![Countersign demo: a refund, a replay, a denied injection, a held refund approved by staff, and the audit trail](docs/demo.gif) The sandbox results are under [Evidence](#evidence).
+![Countersign demo: a refund, a replay, a denied injection, a held refund approved by staff, and the audit trail](docs/demo.gif)
+
+The sandbox results, with real PayPal refund ids, are under [Evidence](#evidence).
 
 Built solo in under 48 hours for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/)
 (Devpost, November 2026).
