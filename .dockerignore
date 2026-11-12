@@ -1,0 +1,10 @@
+.venv
+.git
+__pycache__
+*.db
+.env
+.env.*
+.hypothesis
+.pytest_cache
+evidence
+directive

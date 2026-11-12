@@ -1,0 +1,23 @@
+# Two containers, two sets of secrets. Only `gateway` is given PayPal credentials
+# and the operator token. `agent` is given the gateway's address, the agent token
+# and a model key. That is the separation agent/probe.py checks.
+services:
+  gateway:
+    build: .
+    env_file: .env.gateway
+    environment:
+      COUNTERSIGN_DB: /data/countersign.db
+    command: uvicorn countersign.app:from_env --factory --host 0.0.0.0 --port 8787
+    ports: ["127.0.0.1:8787:8787"]
+    volumes: ["gateway-data:/data"]
+  agent:
+    build: .
+    env_file: .env.agent
+    environment:
+      COUNTERSIGN_URL: http://gateway:8787
+    depends_on: [gateway]
+    profiles: ["agent"]
+    entrypoint: ["python", "-m"]
+    command: ["agent.probe"]
+volumes:
+  gateway-data:
