@@ -22,10 +22,12 @@ import httpx
 SANDBOX = "https://api-m.sandbox.paypal.com"
 COUNTS_AS_REFUNDED =("COMPLETED", "REFUNDED")
 
+
 class PayPalRejected(Exception):
     def __init__(self, status: int, issue: str, debug_id: str) -> None:
         super().__init__(f"PayPal refused: {status} {issue}")
         self.status, self.issue, self.debug_id = status, issue, debug_id
+
 
 class PayPalUnknown(Exception):
     """The outcome of the call is not known"""
@@ -46,7 +48,7 @@ class OrderFacts:
 
     @property
     def refundable(self) -> Decimal:
-        return self.captured - self.refunded 
+        return self.captured - self.refunded
 
 
 def facts_from_order(order: dict) -> OrderFacts:
@@ -55,7 +57,7 @@ def facts_from_order(order: dict) -> OrderFacts:
     if len(units) != 1:
         raise ValueError("order does not have exactly one purchase unit")
     payments = units[0].get("payments") or {}
-    captures = payments.get("captures") or [] 
+    captures = payments.get("captures") or []
     if len(captures) != 1:
         raise ValueError("order does not have exactly one capture")
     capture = captures[0]
