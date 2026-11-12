@@ -1,0 +1,101 @@
+{
+ "source": "PayPal sandbox, measured",
+ "request": "GET /v2/checkout/orders/26C54146KY2473915",
+ "status": 200,
+ "paypal_debug_id": "f780293143cf2",
+ "body": {
+  "id": "26C54146KY2473915",
+  "intent": "CAPTURE",
+  "status": "COMPLETED",
+  "purchase_units": [
+   {
+    "reference_id": "default",
+    "amount": {
+     "currency_code": "USD",
+     "value": "60.00",
+     "breakdown": {}
+    },
+    "payee": {
+     "merchant_id": "549GHM53QT8EN"
+    },
+    "payments": {
+     "captures": [
+      {
+       "id": "4R359121XC1205225",
+       "status": "PARTIALLY_REFUNDED",
+       "amount": {
+        "currency_code": "USD",
+        "value": "60.00"
+       },
+       "final_capture": true,
+       "seller_protection": {
+        "status": "ELIGIBLE",
+        "dispute_categories": [
+         "ITEM_NOT_RECEIVED",
+         "UNAUTHORIZED_TRANSACTION"
+        ]
+       },
+       "seller_receivable_breakdown": {
+        "gross_amount": {
+         "currency_code": "USD",
+         "value": "60.00"
+        },
+        "paypal_fee": {
+         "currency_code": "USD",
+         "value": "2.58"
+        },
+        "net_amount": {
+         "currency_code": "USD",
+         "value": "57.42"
+        }
+       },
+       "create_time": "2026-11-12T02:33:17Z",
+       "update_time": "2026-11-12T02:34:08Z"
+      }
+     ],
+     "refunds": [
+      {
+       "id": "1KE29559UD917250S",
+       "amount": {
+        "currency_code": "USD",
+        "value": "12.00"
+       },
+       "seller_payable_breakdown": {
+        "gross_amount": {
+         "currency_code": "USD",
+         "value": "12.00"
+        },
+        "paypal_fee": {
+         "currency_code": "USD",
+         "value": "0.00"
+        },
+        "platform_fees": [
+         {
+          "amount": {
+           "currency_code": "USD",
+           "value": "0.00"
+          }
+         }
+        ],
+        "net_amount": {
+         "currency_code": "USD",
+         "value": "12.00"
+        },
+        "total_refunded_amount": {
+         "currency_code": "USD",
+         "value": "12.00"
+        }
+       },
+       "custom_id": "32debd62-c63b-4ee5-8c70-fb7e3ec31210",
+       "status": "COMPLETED",
+       "create_time": "2026-11-11T18:34:08-08:00",
+       "update_time": "2026-11-11T18:34:08-08:00"
+      }
+     ]
+    }
+   }
+  ],
+  "create_time": "2026-11-12T02:33:17Z",
+  "update_time": "2026-11-12T02:34:08Z"
+ }
+}

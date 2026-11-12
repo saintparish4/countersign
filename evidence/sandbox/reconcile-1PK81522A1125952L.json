@@ -1,0 +1,101 @@
+{
+ "source": "PayPal sandbox, measured",
+ "request": "GET /v2/checkout/orders/1PK81522A1125952L",
+ "status": 200,
+ "paypal_debug_id": "f7802933788ab",
+ "body": {
+  "id": "1PK81522A1125952L",
+  "intent": "CAPTURE",
+  "status": "COMPLETED",
+  "purchase_units": [
+   {
+    "reference_id": "default",
+    "amount": {
+     "currency_code": "USD",
+     "value": "80.00",
+     "breakdown": {}
+    },
+    "payee": {
+     "merchant_id": "549GHM53QT8EN"
+    },
+    "soft_descriptor": "PAYPAL *TEST STORE",
+    "payments": {
+     "captures": [
+      {
+       "id": "5D422623LW782790X",
+       "status": "PARTIALLY_REFUNDED",
+       "amount": {
+        "currency_code": "USD",
+        "value": "80.00"
+       },
+       "final_capture": true,
+       "seller_protection": {
+        "status": "ELIGIBLE",
+        "dispute_categories": [
+         "ITEM_NOT_RECEIVED",
+         "UNAUTHORIZED_TRANSACTION"
+        ]
+       },
+       "seller_receivable_breakdown": {
+        "gross_amount": {
+         "currency_code": "USD",
+         "value": "80.00"
+        },
+        "paypal_fee": {
+         "currency_code": "USD",
+         "value": "3.28"
+        },
+        "net_amount": {
+         "currency_code": "USD",
+         "value": "76.72"
+        }
+       },
+       "create_time": "2026-11-12T01:25:41Z",
+       "update_time": "2026-11-12T01:39:57Z"
+      }
+     ],
+     "refunds": [
+      {
+       "id": "05T78349UR800614N",
+       "amount": {
+        "currency_code": "USD",
+        "value": "1.00"
+       },
+       "seller_payable_breakdown": {
+        "gross_amount": {
+         "currency_code": "USD",
+         "value": "1.00"
+        },
+        "paypal_fee": {
+         "currency_code": "USD",
+         "value": "0.00"
+        },
+        "platform_fees": [
+         {
+          "amount": {
+           "currency_code": "USD",
+           "value": "0.00"
+          }
+         }
+        ],
+        "net_amount": {
+         "currency_code": "USD",
+         "value": "1.00"
+        },
+        "total_refunded_amount": {
+         "currency_code": "USD",
+         "value": "1.00"
+        }
+       },
+       "status": "COMPLETED",
+       "create_time": "2026-11-11T17:39:57-08:00",
+       "update_time": "2026-11-11T17:39:57-08:00"
+      }
+     ]
+    }
+   }
+  ],
+  "create_time": "2026-11-12T01:25:41Z",
+  "update_time": "2026-11-12T01:39:57Z"
+ }
+}

@@ -1,0 +1,11 @@
+  1 2026-11-12T02:34:06+00:00 agent    sent      26C54146KY2473915     12.00 USD request_id=32debd62-c63b-4ee5-8c70-fb7e3ec31210
+  2 2026-11-12T02:34:08+00:00 agent    refunded  26C54146KY2473915     12.00 USD request_id=32debd62-c63b-4ee5-8c70-fb7e3ec31210 refund_id=1KE29559UD917250S paypal_status=COMPLETED
+  3 2026-11-12T02:34:17+00:00 agent    replayed  26C54146KY2473915     12.00 USD reason=completed request_id=32debd62-c63b-4ee5-8c70-fb7e3ec31210 refund_id=1KE29559UD917250S
+  4 2026-11-12T02:34:34+00:00 agent    denied    668323112H672262X     20.00 USD reason=order_not_bound_to_session
+  5 2026-11-12T02:34:41+00:00 agent    held      1PK81522A1125952L     79.00 USD reason=above_auto_limit approval_id=091ca046467a4a2096861416aaa24e92
+  6 2026-11-12T02:36:44+00:00 operator rejected  1PK81522A1125952L     79.00 USD reason=rejected_by_operator approval_id=091ca046467a4a2096861416aaa24e92
+  7 2026-11-12T02:36:53+00:00 agent    replayed  26C54146KY2473915     12.00 USD reason=completed request_id=32debd62-c63b-4ee5-8c70-fb7e3ec31210 refund_id=1KE29559UD917250S
+  8 2026-11-12T02:38:44+00:00 agent    held      5GC158090P1477333     80.00 USD reason=above_auto_limit approval_id=20ba2d41d1dc41f0af22d229f3f57382
+  9 2026-11-12T02:39:08+00:00 operator approved  5GC158090P1477333     80.00 USD reason=approved_by_operator approval_id=20ba2d41d1dc41f0af22d229f3f57382
+ 10 2026-11-12T02:39:09+00:00 agent    sent      5GC158090P1477333     80.00 USD request_id=f0a064f5-3e53-4b9c-9873-8fe672fe79c8
+ 11 2026-11-12T02:39:10+00:00 agent    refunded  5GC158090P1477333     80.00 USD request_id=f0a064f5-3e53-4b9c-9873-8fe672fe79c8 refund_id=9RM96348NF716935N paypal_status=COMPLETED

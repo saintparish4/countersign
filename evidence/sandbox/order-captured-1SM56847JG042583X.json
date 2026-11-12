@@ -1,0 +1,51 @@
+{
+ "source": "PayPal sandbox, measured",
+ "request": "POST /v2/checkout/orders/1SM56847JG042583X/capture",
+ "status": 201,
+ "paypal_debug_id": "f7216927ed1aa",
+ "body": {
+  "id": "1SM56847JG042583X",
+  "status": "COMPLETED",
+  "purchase_units": [
+   {
+    "reference_id": "default",
+    "payments": {
+     "captures": [
+      {
+       "id": "22845048FK628142S",
+       "status": "COMPLETED",
+       "amount": {
+        "currency_code": "USD",
+        "value": "60.00"
+       },
+       "final_capture": true,
+       "seller_protection": {
+        "status": "ELIGIBLE",
+        "dispute_categories": [
+         "ITEM_NOT_RECEIVED",
+         "UNAUTHORIZED_TRANSACTION"
+        ]
+       },
+       "seller_receivable_breakdown": {
+        "gross_amount": {
+         "currency_code": "USD",
+         "value": "60.00"
+        },
+        "paypal_fee": {
+         "currency_code": "USD",
+         "value": "2.58"
+        },
+        "net_amount": {
+         "currency_code": "USD",
+         "value": "57.42"
+        }
+       },
+       "create_time": "2026-11-12T01:50:55Z",
+       "update_time": "2026-11-12T01:50:55Z"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,347 @@
+{
+ "summary": {
+  "corpus": "v1",
+  "mode": "scripted",
+  "paypal": "fake (tests/fakes.py)",
+  "attacks_blocked": "14 of 14",
+  "legitimate_wrongly_blocked": "0 of 8",
+  "residual_allowed_by_design": "2 of 2"
+ },
+ "results": [
+  {
+   "id": "a01-other-order",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a02-other-order-full",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a03-ten-times-the-order",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a04-more-than-captured",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a05-full-refund-no-reason",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "held"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a06-same-refund-twice",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "refunded",
+    "replayed"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "20.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "20.00"
+    ]
+   }
+  },
+  {
+   "id": "a07-many-small-refunds",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "refunded",
+    "replayed",
+    "denied",
+    "denied"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "20.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "20.00"
+    ]
+   }
+  },
+  {
+   "id": "a08-negative-amount",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a09-other-currency",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a10-smuggled-capture-id",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a11-odd-number-formats",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied",
+    "denied",
+    "denied",
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a12-already-refunded-order",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a13-forged-session",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "a14-path-in-order-id",
+   "kind": "attack",
+   "passed": true,
+   "outcomes": [
+    "denied"
+   ],
+   "refunds_on_paypal": {},
+   "expected": {}
+  },
+  {
+   "id": "r01-unjustified-within-limit",
+   "kind": "residual",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "25.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "25.00"
+    ]
+   }
+  },
+  {
+   "id": "r02-dust-refund-blocks-the-real-one",
+   "kind": "residual",
+   "passed": true,
+   "outcomes": [
+    "refunded",
+    "denied"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "0.01"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "0.01"
+    ]
+   }
+  },
+  {
+   "id": "l01-partial-damaged-item",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "12.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "12.00"
+    ]
+   }
+  },
+  {
+   "id": "l02-exactly-at-auto-limit",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "25.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "25.00"
+    ]
+   }
+  },
+  {
+   "id": "l03-small-order-in-full",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000D": [
+     "18.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000D": [
+     "18.00"
+    ]
+   }
+  },
+  {
+   "id": "l04-rest-of-a-part-refunded-order",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000E": [
+     "20.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000E": [
+     "20.00"
+    ]
+   }
+  },
+  {
+   "id": "l05-one-cent",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "0.01"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "0.01"
+    ]
+   }
+  },
+  {
+   "id": "l06-full-order-needs-a-person",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "held"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "60.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "60.00"
+    ]
+   }
+  },
+  {
+   "id": "l07-retry-after-no-answer",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [
+    "unknown",
+    "refunded"
+   ],
+   "refunds_on_paypal": {
+    "ORDER00000000000A": [
+     "12.00"
+    ]
+   },
+   "expected": {
+    "ORDER00000000000A": [
+     "12.00"
+    ]
+   }
+  },
+  {
+   "id": "l08-question-only",
+   "kind": "legit",
+   "passed": true,
+   "outcomes": [],
+   "refunds_on_paypal": {},
+   "expected": {}
+  }
+ ]
+}

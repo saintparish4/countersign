@@ -1,0 +1,10 @@
+{
+ "source": "PayPal sandbox, measured",
+ "request": "POST /v2/checkout/orders",
+ "status": 200,
+ "paypal_debug_id": "f710620889206",
+ "body": {
+  "id": "5GC158090P1477333",
+  "status": "PAYER_ACTION_REQUIRED"
+ }
+}
