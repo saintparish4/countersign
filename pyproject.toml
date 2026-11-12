@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "countersign"
+version = "0.1.0"
+description = "A spending-control gateway between an AI support agent and PayPal refunds"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+    "openscript-sdk==0.1.0",
+    "fastapi==0.162.4",
+    "uvicorn==0.54.0",
+    "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+agent = ["anthropic==2.8.0"]
+dev = ["pytest==9.2.0", "pytest-asyncio==1.4.1.post1", "hypothesis==6.170.15", "ruff==0.17.4"]
+
+[tool.setuptools]
+packages = ["countersign"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+# FastAPI reads Body(...) from parameter defaults by design.
+[tool.ruff.lint.per-file-ignores]
+"countersign/app.py" = ["B008"]

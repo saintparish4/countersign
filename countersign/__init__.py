@@ -1,0 +1,1 @@
+"""Countersign: an AI agent may ask for a PayPal refund; only this gateway can send one."""
