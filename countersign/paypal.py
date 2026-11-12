@@ -20,7 +20,7 @@ from decimal import Decimal
 import httpx
 
 SANDBOX = "https://api-m.sandbox.paypal.com"
-COUNTS_AS_REFUNDED =("COMPLETED", "REFUNDED")
+COUNTS_AS_REFUNDED = ("COMPLETED", "PENDING")
 
 
 class PayPalRejected(Exception):
