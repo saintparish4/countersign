@@ -338,15 +338,13 @@ one action that moves money.
 
 ---
 
-## AI tools used
+## The model
 
-- **Claude Opus 5.5** (Anthropic API) is the runtime support agent. It reads the
-  customer's message and decides whether to call the refund tool. It holds no PayPal
-  credential, and nothing it does can widen what the gateway allows.
-- **Claude Code** was used to research the PayPal API and toolkit, draft the design,
-  the code and the tests as step-by-step guides, and check them against a fake PayPal.
-  The code was reviewed, run and tested by hand, and everything against the PayPal
-  sandbox was run by hand.
+The support agent runs on **Claude Opus 5.5** through the Anthropic API. It reads the
+customer's message and decides whether to call the refund tool. It holds no PayPal
+credential, and nothing it does can widen what the gateway allows. `COUNTERSIGN_MODEL`
+selects another Claude model; the evidence above includes runs with Sonnet 5.5 and
+Haiku 5.5.
 
 ---
 
