@@ -7,6 +7,4 @@ __pycache__/
 .env.*
 !.env.example
 *.db
-directive/tmp/
 tmp/
-directive/
