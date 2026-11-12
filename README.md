@@ -7,8 +7,11 @@ member of staff approves that exact refund.**
 
 It does not stop prompt injection. It bounds what a fooled agent can do to money.
 
-**Demo video (78 s, silent, captioned):** [docs/demo.mp4](docs/demo.mp4). It is recorded
-against the offline gateway with a fake PayPal, so its refund ids are not sandbox ids.
+**Demo video (2 min 14 s, silent, captioned):** [docs/demo.mp4](docs/demo.mp4). It shows the
+real gateway and the real Claude agent against the fake PayPal, so its refund ids are not
+sandbox ids. The sandbox results are under [Evidence](#evidence).
+
+Built solo in under 48 hours for the PayPal hackathon on Devpost (November 2026).
 
 Countersign is a gateway that sits between an AI support agent and PayPal refunds. The
 agent can ask for a refund; only the gateway can send one. It is built on
