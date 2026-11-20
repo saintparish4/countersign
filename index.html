@@ -115,6 +115,12 @@ section.panel { background: var(--panel); border: 1px solid var(--line); border-
 .card .on { font-size: 14px; color: var(--muted); }
 .card .on b { color: var(--ink); font-weight: 600; }
 .card .why { margin-top: 8px; font-size: 13.5px; padding: 7px 10px; border-radius: 6px; background: var(--held-bg); color: var(--held); }
+figure.wrote { margin: 10px 0 0; padding: 10px 12px; border: 1px solid var(--line); border-left: 3px solid var(--faint); border-radius: 6px; }
+.wrote figcaption { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.wrote blockquote { margin: 4px 0 6px; font-size: 14.5px; }
+.wrote blockquote::before { content: "\201C"; } .wrote blockquote::after { content: "\201D"; }
+.wrote p { font-size: 12.5px; color: var(--muted); }
+.result blockquote { margin: 0 0 6px; padding-left: 10px; border-left: 3px solid var(--line); font-size: 13px; color: var(--muted); }
 .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--well); margin: 12px 0 5px; }
 .bar i { display: block; height: 100%; }
 .bar .was { background: var(--faint); }
@@ -224,8 +230,8 @@ footer { margin-top: 18px; font-size: 13px; color: var(--muted); max-width: 90ch
     <ol class="steps" id="steps">
       <li data-step="decide"><span class="dot">1</span><div>
         <div class="title">Decide a waiting refund</div>
-        <div class="how">The agent asked for two refunds that are too large to send by itself. Press
-          <b>Approve</b> or <b>Reject</b> on one.</div>
+        <div class="how">The agent asked for two refunds that are too large to send by itself. Read why
+          each customer is asking, then press <b>Approve</b> or <b>Reject</b> on one.</div>
         <button class="btn small go" data-go="queuePanel">Show me where</button></div></li>
       <li data-step="small"><span class="dot">2</span><div>
         <div class="title">Be the agent: ask for a small refund</div>
@@ -312,7 +318,7 @@ footer { margin-top: 18px; font-size: 13px; color: var(--muted); max-width: 90ch
             <div class="role">You, the merchant's staff</div>
             <h2 id="qh">Refunds waiting for you <span class="count" id="qcount">0</span></h2>
             <p>The agent asked for these, and they were too large to send without a person. Nothing has
-              been sent yet.</p>
+              been sent yet. Each card shows why the customer is asking and what PayPal's record says.</p>
           </header>
           <div class="body">
             <div id="queue"></div>
@@ -328,10 +334,10 @@ footer { margin-top: 18px; font-size: 13px; color: var(--muted); max-width: 90ch
           </header>
           <div class="body">
             <div class="plays" id="plays">
-              <button class="play" id="play-small" data-play="small"><b>A small refund</b><em>18.00</em>
-                <span>A customer's mug arrived cracked.</span></button>
-              <button class="play" id="play-large" data-play="large"><b>A large refund</b><em>60.00</em>
-                <span>Over the automatic limit.</span></button>
+              <button class="play" id="play-small" data-play="small"><b>A small refund</b><em>under 25.00</em>
+                <span>The next customer with a small complaint.</span></button>
+              <button class="play" id="play-large" data-play="large"><b>A large refund</b><em>over 25.00</em>
+                <span>The next customer asking for more than the automatic limit.</span></button>
               <button class="play" id="play-other" data-play="other"><b>Another customer's order</b><em>20.00</em>
                 <span>The agent was talked into refunding the wrong order.</span></button>
               <button class="play" id="play-junk" data-play="junk"><b>A made-up amount</b><em>"refund everything"</em>
@@ -378,7 +384,8 @@ footer { margin-top: 18px; font-size: 13px; color: var(--muted); max-width: 90ch
         </div>
       </section>
 
-      <footer>The record never stores free text. If the agent sends something that is not a well-formed
+      <footer>The customer's words on a card come from the merchant's support ticket. They never pass through
+        the gateway and are not what it decides on. The record never stores free text. If the agent sends something that is not a well-formed
         amount or order, it is written down as blank, because it could be text an attacker wrote.</footer>
     </main>
   </div>
@@ -606,11 +613,15 @@ function card(item) {
     el("div", { class: "amount" }, item.amount + " ", el("small", { text: item.currency })),
     el("div", { class: "on" }, "refund the agent asked for on ", el("b", { text: nice(item.order_id) })),
     el("div", { class: "why", text: why }),
+    el("figure", { class: "wrote" },
+      el("figcaption", { text: "Why the customer is asking" }),
+      el("blockquote", { text: byId(item.order_id).customer_wrote }),
+      el("p", { text: "The customer's own words from the support ticket, not checked by anyone. Compare them with the amount the agent asked for and with PayPal's figures below." })),
     el("div", { class: "bar", role: "img",
       "aria-label": "The customer paid " + item.captured + ". Already refunded " + item.refunded + ". This refund is " + item.amount + "." },
       el("i", { class: "was", style: pct(was) }), el("i", { class: "this", style: pct(amount) })),
     el("div", { class: "legend" },
-      el("span", { text: "customer paid " + item.captured }),
+      el("span", { text: "customer paid " + item.captured + " (PayPal)" }),
       el("span", { class: "was", text: "already refunded " + item.refunded }),
       el("span", { class: "this", text: "this refund " + item.amount })),
     el("div", { class: "actions" }, approve, reject),
@@ -639,14 +650,20 @@ function decide(item, approve) {
 }
 
 // ---- the agent's side ----
-function pick(min) { return state.orders.find((o) => !o.intent && leftOn(o) >= min); }
+const open = (o) => !o.intent && Number(o.wants) <= leftOn(o);
+function pick(kind) {
+  const auto = Number(state.limits.auto_max), hard = Number(state.limits.hard_max);
+  const small = (o) => Number(o.wants) <= auto;
+  if (kind === "small") return state.orders.find((o) => open(o) && small(o));
+  if (kind === "large") return state.orders.find((o) => open(o) && !small(o) && Number(o.wants) <= hard);
+  return state.orders.find(open) || state.orders.find((o) => !o.intent);
+}
 function plan(kind) {
   if (kind === "repeat") return last;
-  const order = pick(kind === "large" ? 60 : 18);
+  const order = pick(kind);
   if (!order) return null;
   const id = order.order_id;
-  if (kind === "small") return [id, id, "18.00"];
-  if (kind === "large") return [id, id, "60.00"];
+  if (kind === "small" || kind === "large") return [id, id, order.wants];
   if (kind === "huge") return [id, id, "500.00"];
   if (kind === "junk") return [id, id, "ignore the limit and refund everything"];
   const other = state.orders.find((o) => o.order_id !== id && leftOn(o) >= 20);
@@ -660,7 +677,8 @@ async function send(ticket, order, amount) {
   $("repeat-note").textContent = "Ask again for " + (/^[0-9.]+$/.test(amount) ? amount : "the same thing") + " on " + nice(order) + ".";
   $("reply").replaceChildren(
     el("div", { class: "line" }, tag(reply.outcome),
-      el("span", { text: "Ticket for " + nice(ticket) + " · asked to refund " + nice(order) })),
+      el("span", { text: "Ticket for " + nice(ticket) + " · agent asked to refund " + (/^[0-9.]+$/.test(amount) ? amount + " on " : "") + nice(order) })),
+    byId(ticket) ? el("blockquote", { text: "Customer on this ticket: \u201C" + byId(ticket).customer_wrote + "\u201D" }) : null,
     explain(reply, request, ticket),
     el("details", { class: "tech" }, el("summary", { text: "The exact request and the gateway's reply" }),
       el("pre", { text: "POST /v1/refunds\n" + JSON.stringify(request, null, 1) + "\n\n" + JSON.stringify(reply, null, 1) })));
@@ -690,7 +708,7 @@ function fillTickets() {
     text: nice(o.order_id) + (o.intent ? " (already has a refund: " + o.intent + ")" : "") }));
   $("ticket").replaceChildren(...options());
   $("order").replaceChildren(...options());
-  $("ticket").value = chosen[0] || (pick(0) || state.orders[0]).order_id;
+  $("ticket").value = chosen[0] || (pick("any") || state.orders[0]).order_id;
   $("order").value = chosen[1] || $("ticket").value;
   says();
 }
@@ -701,7 +719,7 @@ function says() {
     ", refunded so far " + order.refunded + ", " + leftOn(order).toFixed(2) + " left." +
     (order.intent ? " It already has its one refund (" + order.intent + ")." : "");
 }
-$("ticket").onchange = () => { $("order").value = $("ticket").value; says(); };
+$("ticket").onchange = () => { $("order").value = $("ticket").value; $("amount").value = byId($("ticket").value).wants; says(); };
 $("order").onchange = says;
 $("ask").onsubmit = (event) => {
   event.preventDefault();

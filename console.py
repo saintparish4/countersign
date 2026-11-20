@@ -32,6 +32,28 @@ ORDERS = (
     ("ORDER00000000000Q", "54.00", "0.00"),
     ("ORDER00000000000R", "135.00", "0.00"),
 )
+# The merchant's helpdesk, which is not part of Countersign: what the customer wrote
+# on each ticket, and the amount they asked for. The page shows it to staff beside a
+# held refund. It never passes through the agent's request, the gateway or the audit
+# trail, and the gateway decides nothing from it.
+TICKETS = {
+    "A": ("12.00", "One of the two mugs in my order arrived cracked. It cost 12.00. Can I get that back?"),
+    "B": ("150.00", "The espresso machine works, but the milk frother that was part of the bundle (150.00) was missing from the box. I'd like a refund for that part."),
+    "C": ("80.00", "One of the three lamps arrived shattered. They were 60.00 each. I think 80.00 is fair for the lamp and the hassle."),
+    "D": ("60.00", "You already refunded 40.00 for the late delivery, but the jacket doesn't fit either. Please refund 60.00 more."),
+    "E": ("240.00", "The whole order never arrived. Refund all 240.00."),
+    "F": ("18.00", "The phone case came in the wrong colour. It was 18.00."),
+    "G": ("60.00", "Two of the four chair cushions arrived stained. They were 30.00 each, so 60.00 back please."),
+    "H": ("9.99", "I was charged 9.99 for gift wrap and the parcel came unwrapped."),
+    "J": ("64.00", "The headphones stopped charging after two days. I have posted them back. Full refund of 64.00 please."),
+    "K": ("105.00", "Only one of the two monitors was delivered. Please refund the missing one, 105.00."),
+    "L": ("24.00", "One of the two candles arrived melted. It was 24.00."),
+    "M": ("45.00", "The keyboard came without the wrist rest that was listed at 45.00."),
+    "N": ("15.00", "Shipping was meant to be free and I was charged 15.00."),
+    "P": ("120.00", "The rug is a size smaller than I ordered. I'll keep it if you refund the difference, 120.00."),
+    "Q": ("21.50", "One book in the set arrived with a torn cover. It was 21.50."),
+    "R": ("135.00", "I returned the coat last week and tracking shows it was delivered. Please refund 135.00."),
+}
 # (the ticket's order, the order asked for, amount): what the agent asks before you arrive
 SEED = (
     ("ORDER00000000000A", "ORDER00000000000A", "12.00"),
@@ -89,6 +111,8 @@ def snapshot() -> str:
                 "captured": captured,
                 "refunded": f"{refunded:.2f}",
                 "intent": (store.intent(order_id) or {"state": ""})["state"],
+                "wants": TICKETS[order_id[-1]][0],
+                "customer_wrote": TICKETS[order_id[-1]][1],
             }
         )
     limits = gateway.limits
