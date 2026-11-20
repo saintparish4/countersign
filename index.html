@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Countersign operator console (demo)</title>
-<meta name="description" content="Approve or reject held refunds and read the audit trail. The real Countersign gateway runs in your browser against a fake PayPal. No account, no credentials.">
-<meta property="og:title" content="Countersign operator console (demo)">
-<meta property="og:description" content="The real gateway, running in your browser against a fake PayPal. Approve held refunds and read the audit trail. No credentials.">
+<title>Countersign demo: approve an AI agent's refunds</title>
+<meta name="description" content="A guided, click-through demo. An AI support agent asks for refunds; you approve or reject the large ones and read the record. The real Countersign gateway runs in your browser against a fake PayPal. No account, no real money.">
+<meta property="og:title" content="Countersign demo: approve an AI agent's refunds">
+<meta property="og:description" content="A guided demo of the real gateway, running in your browser against a fake PayPal. No account, no real money.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://saintparish4.github.io/countersign/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23182230'/%3E%3Cpath d='M8 17l5 5 11-12' fill='none' stroke='%23f2b84b' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -14,7 +14,7 @@
 :root {
   --bg: #f4f2ed; --panel: #fffefb; --ink: #182230; --muted: #5d6673; --faint: #8a919b;
   --line: #dedad0; --line-soft: #ebe7de; --well: #f0ede5;
-  --accent: #1f4fbf; --accent-ink: #ffffff;
+  --accent: #1f4fbf; --accent-ink: #ffffff; --accent-soft: #e4ebfa;
   --held: #8a5a00; --held-bg: #fbeecb; --held-bar: #e5a823;
   --ok: #17663a; --ok-bg: #dcf1e2;
   --no: #a12a22; --no-bg: #f9dfdb;
@@ -27,7 +27,7 @@
   :root {
     --bg: #11151b; --panel: #181d25; --ink: #e8eaed; --muted: #a0a8b3; --faint: #737c88;
     --line: #2b323d; --line-soft: #222831; --well: #1f252e;
-    --accent: #8fb0ff; --accent-ink: #0e1420;
+    --accent: #8fb0ff; --accent-ink: #0e1420; --accent-soft: #1c2a44;
     --held: #f2c25c; --held-bg: #3a2e12; --held-bar: #d79a1f;
     --ok: #7bd39b; --ok-bg: #153423;
     --no: #f29a91; --no-bg: #3d1c19;
@@ -36,64 +36,104 @@
   }
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
 a { color: var(--accent); text-underline-offset: 2px; }
 button, input, select { font: inherit; color: inherit; }
 .mono { font-family: var(--mono); font-size: 0.92em; font-variant-numeric: tabular-nums; }
-.wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 56px; }
+h1, h2, h3, p { margin: 0; }
 
-header.top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 0 14px; }
-.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
-.brand h1 { font-size: 19px; margin: 0; letter-spacing: -0.01em; }
-.brand span { color: var(--muted); font-size: 14px; }
-.top a.src { font-size: 14px; }
+.shell { max-width: 1320px; margin: 0 auto; padding: 20px; display: grid;
+  grid-template-columns: 330px minmax(0, 1fr); gap: 22px; align-items: start; }
 
-.notice { border: 1px solid var(--line); border-left: 4px solid var(--held-bar); background: var(--panel);
-  border-radius: 6px; padding: 10px 14px; font-size: 14px; color: var(--muted); }
-.notice strong { color: var(--ink); font-weight: 600; }
+/* ---- side menu ---- */
+aside.guide { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.guide h1 { font-size: 20px; letter-spacing: -0.01em; }
+.guide .tagline { color: var(--muted); font-size: 13px; margin-top: 1px; }
+.guide .what { margin-top: 12px; font-size: 14px; }
+.safe { margin-top: 12px; padding: 9px 11px; border-radius: 7px; background: var(--ok-bg); color: var(--ok); font-size: 13.5px; }
+.safe strong { font-weight: 650; }
+.guide h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 20px 0 8px;
+  display: flex; align-items: baseline; }
+.guide h2 span { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 500; }
 
-.facts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 14px 0 18px;
-  border: 1px solid var(--line); border-radius: 6px; background: var(--panel); overflow: hidden; }
-.fact { padding: 10px 14px; border-left: 1px solid var(--line-soft); min-width: 0; }
-.fact:first-child { border-left: 0; }
-.fact dt { font-size: 12px; color: var(--muted); margin: 0 0 2px; }
-.fact dd { margin: 0; font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; }
-.fact dd small { font-size: 12px; color: var(--muted); }
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.steps li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 9px 10px; border-radius: 8px;
+  border: 1px solid transparent; }
+.steps .dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center;
+  font: 600 12px var(--mono); color: var(--muted); background: var(--panel); }
+.steps .title { font-weight: 600; font-size: 14px; }
+.steps .how { font-size: 13px; color: var(--muted); margin-top: 2px; display: none; }
+.steps .go { display: none; margin-top: 8px; }
+.steps li.now { background: var(--accent-soft); border-color: var(--accent); }
+.steps li.now .dot { border-color: var(--accent); color: var(--accent); }
+.steps li.now .how { display: block; color: var(--ink); }
+.steps li.now .go { display: inline-block; }
+.steps li.done .dot { background: var(--ok); border-color: var(--ok); color: var(--panel); }
+.steps li.done .title { color: var(--muted); font-weight: 500; }
+.steps li:not(.now):hover .how, .steps li:not(.now):focus-within .how { display: block; }
+.alldone { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--ok-bg); color: var(--ok); font-size: 13.5px; }
+.alldone[hidden] { display: none; }
 
-.cols { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
-.panel > h2 { display: flex; align-items: center; gap: 8px; font-size: 15px; margin: 0; padding: 12px 16px;
-  border-bottom: 1px solid var(--line-soft); }
-.panel > h2 .count { font: 600 12px var(--mono); background: var(--held-bg); color: var(--held);
-  border-radius: 999px; padding: 1px 8px; }
-.panel > h2 .count.zero { background: var(--well); color: var(--muted); }
-.panel > h2 .aside { margin-left: auto; font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.guide details { border-top: 1px solid var(--line-soft); padding: 10px 0 0; margin-top: 12px; }
+.guide summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.guide details ul, .guide details dl { margin: 8px 0 0; padding: 0; font-size: 13.5px; }
+.guide details ul { list-style: none; display: grid; gap: 6px; }
+.guide details li b { font-family: var(--mono); font-weight: 600; }
+.guide details dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 10px; align-items: baseline; }
+.guide details dd { margin: 0; color: var(--muted); }
+.guide .foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--line-soft); font-size: 13.5px; }
+
+/* ---- main ---- */
+.tally { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px;
+  background: var(--panel); overflow: hidden; margin-bottom: 18px; }
+.tally div { padding: 11px 16px; border-left: 1px solid var(--line-soft); min-width: 0; }
+.tally div:first-child { border-left: 0; }
+.tally dt { font-size: 12.5px; color: var(--muted); }
+.tally dd { margin: 1px 0 0; font: 600 19px var(--mono); font-variant-numeric: tabular-nums; }
+.tally dd small { font: 400 12.5px var(--sans); color: var(--muted); }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; min-width: 0; scroll-margin-top: 16px; }
+.panel > header { padding: 14px 16px 12px; border-bottom: 1px solid var(--line-soft); }
+.panel .role { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.panel h2 { font-size: 17px; display: flex; align-items: center; gap: 8px; margin-top: 1px; }
+.panel h2 .count { font: 600 12px var(--mono); background: var(--held-bg); color: var(--held); border-radius: 999px; padding: 1px 8px; }
+.panel h2 .count.zero { background: var(--well); color: var(--muted); }
+.panel header p { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
 .panel .body { padding: 14px 16px 16px; }
-.lede { margin: 0 0 12px; font-size: 13.5px; color: var(--muted); }
+.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { 0%, 35% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 3px transparent; } }
 
-.card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: var(--panel); }
+.card { border: 1px solid var(--line); border-radius: 9px; padding: 14px; margin-bottom: 12px; }
 .card:last-child { margin-bottom: 0; }
-.card .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.card .amount { font: 600 22px var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.card .amount { font: 600 24px var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .card .amount small { font-size: 13px; font-weight: 500; color: var(--muted); }
-.card dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 14px; margin: 10px 0 0; font-size: 13.5px; }
-.card dt { color: var(--muted); }
-.card dd { margin: 0; overflow-wrap: anywhere; }
+.card .on { font-size: 14px; color: var(--muted); }
+.card .on b { color: var(--ink); font-weight: 600; }
+.card .why { margin-top: 8px; font-size: 13.5px; padding: 7px 10px; border-radius: 6px; background: var(--held-bg); color: var(--held); }
 .bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--well); margin: 12px 0 5px; }
 .bar i { display: block; height: 100%; }
 .bar .was { background: var(--faint); }
 .bar .this { background: var(--held-bar); }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
 .legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; background: var(--well); border: 1px solid var(--line); }
 .legend .was::before { background: var(--faint); border-color: var(--faint); }
 .legend .this::before { background: var(--held-bar); border-color: var(--held-bar); }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+details.tech { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+details.tech summary { cursor: pointer; }
+details.tech dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; margin: 6px 0 0; }
+details.tech dd { margin: 0; overflow-wrap: anywhere; font-family: var(--mono); }
+details.tech pre { margin: 6px 0 0; padding: 9px 11px; background: var(--well); border-radius: 6px; font: 12px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 
-.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 7px 14px; cursor: pointer; font-weight: 550; font-size: 14px; }
-.btn:hover { border-color: var(--faint); }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 8px 14px; cursor: pointer; font-weight: 550; font-size: 14px; }
+.btn:hover:not(:disabled) { border-color: var(--faint); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.primary:hover { filter: brightness(1.08); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
 .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
 .btn:disabled { opacity: 0.5; cursor: default; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -104,137 +144,244 @@ section.panel { background: var(--panel); border: 1px solid var(--line); border-
 .tag.denied, .tag.rejected, .tag.failed, .tag.error, .tag.unknown { background: var(--no-bg); color: var(--no); }
 .tag.approved, .tag.sent, .tag.replayed { background: var(--info-bg); color: var(--info); }
 
-.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 22px 16px; text-align: center; color: var(--muted); font-size: 14px; }
-.last { margin-top: 12px; padding: 9px 12px; border-radius: 6px; background: var(--well); font-size: 13.5px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-.last[hidden] { display: none; }
+.empty { border: 1px dashed var(--line); border-radius: 9px; padding: 22px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+.result { margin-top: 12px; padding: 11px 13px; border-radius: 8px; background: var(--well); font-size: 14px; }
+.result[hidden] { display: none; }
+.result .line { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 
-form.ask { display: grid; gap: 10px; }
+.plays { display: grid; gap: 8px; }
+.play { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; text-align: left; width: 100%;
+  border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+.play:hover:not(:disabled) { border-color: var(--accent); }
+.play:disabled { opacity: 0.5; cursor: default; }
+.play b { font-weight: 600; font-size: 14px; }
+.play span { grid-column: 1; font-size: 12.5px; color: var(--muted); }
+.play em { grid-row: 1 / span 2; grid-column: 2; font-style: normal; font-size: 12px; color: var(--muted); white-space: nowrap; }
+details.own { margin-top: 12px; border-top: 1px solid var(--line-soft); padding-top: 10px; }
+details.own summary { cursor: pointer; font-size: 13.5px; color: var(--muted); }
+form.ask { display: grid; gap: 10px; margin-top: 10px; }
 form.ask label { display: grid; gap: 3px; font-size: 12.5px; color: var(--muted); }
-form.ask select, form.ask input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-family: var(--mono); font-size: 13.5px; }
-.paypal-says { font-size: 12.5px; color: var(--muted); margin: -4px 0 0; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; }
-pre.reply { margin: 12px 0 0; padding: 10px 12px; background: var(--well); border-radius: 6px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
-pre.reply[hidden] { display: none; }
+form.ask select, form.ask input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-size: 14px; }
+form.ask p { font-size: 12.5px; color: var(--muted); margin-top: -4px; }
 
 .audit { margin-top: 18px; }
+.audit header { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.audit header > div { flex: 1 1 300px; }
+.audit label.toggle { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; white-space: nowrap; cursor: pointer; }
 .scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 th { text-align: left; font-weight: 500; font-size: 12px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
-td { padding: 7px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; white-space: nowrap; }
 tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; }
-td.detail { white-space: normal; min-width: 260px; color: var(--muted); }
-td.detail b { font-weight: 500; color: var(--ink); }
-td.detail span { display: inline-block; margin-right: 12px; }
+td.what { white-space: normal; min-width: 250px; }
+td.what .tag { margin-right: 6px; }
+td.ids { white-space: normal; min-width: 240px; color: var(--muted); font-size: 12.5px; }
+td.ids b { font-weight: 500; color: var(--ink); }
+td.ids span { display: inline-block; margin-right: 12px; }
+table:not(.tech-on) .ids { display: none; }
 tr.fresh td { animation: fresh 2.4s ease-out; }
 @keyframes fresh { from { background: var(--held-bg); } to { background: transparent; } }
-@media (prefers-reduced-motion: reduce) { tr.fresh td { animation: none; } }
+@media (prefers-reduced-motion: reduce) { tr.fresh td, .flash { animation: none; } }
 
-.boot { padding: 60px 16px; text-align: center; color: var(--muted); }
+.boot { padding: 70px 16px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.boot .big { font-size: 17px; color: var(--ink); font-weight: 600; }
 .boot ol { list-style: none; padding: 0; margin: 14px auto 0; display: inline-grid; gap: 4px; text-align: left; font-size: 14px; }
 .boot li::before { content: "·"; display: inline-block; width: 1.4em; color: var(--faint); }
 .boot li.now { color: var(--ink); }
 .boot li.now::before { content: "›"; color: var(--accent); }
 .boot li.done::before { content: "✓"; color: var(--ok); }
 .boot .err { color: var(--no); max-width: 60ch; margin: 14px auto 0; }
-footer { margin-top: 22px; font-size: 13px; color: var(--muted); }
-footer p { margin: 0 0 6px; max-width: 86ch; }
+footer { margin-top: 18px; font-size: 13px; color: var(--muted); max-width: 90ch; }
 
-@media (max-width: 860px) {
+@media (max-width: 1000px) {
+  .shell { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 16px; }
+  aside.guide { position: static; max-height: none; }
+  .steps li:not(.now) .how { display: none !important; }
+}
+@media (max-width: 760px) {
   .cols { grid-template-columns: minmax(0, 1fr); }
-  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .fact { border-left: 0; border-top: 1px solid var(--line-soft); }
-  .fact:nth-child(-n+2) { border-top: 0; }
-  .fact:nth-child(even) { border-left: 1px solid var(--line-soft); }
-  .fact:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .wrap { padding: 0 16px 40px; }
+  .tally { grid-template-columns: minmax(0, 1fr); }
+  .tally div { border-left: 0; border-top: 1px solid var(--line-soft); display: flex; align-items: baseline; gap: 10px; }
+  .tally div:first-child { border-top: 0; }
+  .tally dt { flex: 1; }
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><h1>Countersign</h1><span>operator console · demo</span></div>
-    <a class="src" href="https://github.com/saintparish4/countersign">Source and evidence on GitHub</a>
-    <button class="btn small" id="reset" disabled>Reset demo</button>
-  </header>
+<div class="shell">
 
-  <p class="notice"><strong>Nothing here touches PayPal.</strong> This page runs the real gateway code
-    (<a class="mono" href="https://github.com/saintparish4/countersign/tree/482db35768f5e6872cf6c7bf15fbc525bbfb9ef4">countersign@482db35</a>)
-    in your browser, against the fake PayPal from <span class="mono">tests/fakes.py</span>. Its refund ids
-    are not PayPal ids. The state is in this tab only and starts over when you reload.</p>
+  <aside class="guide" aria-label="Guide">
+    <h1>Countersign</h1>
+    <p class="tagline">Interactive demo</p>
+    <p class="what">An AI support agent can ask to refund customers. <strong>Countersign stands between the
+      agent and the money.</strong> Small refunds go through, large ones wait for a person, and anything odd is
+      refused. Here you are that person.</p>
+    <p class="safe"><strong>Click anything.</strong> No real money moves and you need no account. PayPal is
+      a stand-in that runs in this tab.</p>
 
-  <div id="boot" class="boot" role="status">
-    <div>Starting the gateway in your browser. The first visit takes a few seconds.</div>
-    <ol>
-      <li data-step="python">Load Python (Pyodide) with pydantic and httpx</li>
-      <li data-step="deps">Install openscript-sdk 0.1.0</li>
-      <li data-step="gateway">Start the gateway and replay seven agent requests</li>
+    <h2>Try it <span id="progress">0 of 6 done</span></h2>
+    <ol class="steps" id="steps">
+      <li data-step="decide"><span class="dot">1</span><div>
+        <div class="title">Decide a waiting refund</div>
+        <div class="how">The agent asked for two refunds that are too large to send by itself. Press
+          <b>Approve</b> or <b>Reject</b> on one.</div>
+        <button class="btn small go" data-go="queuePanel">Show me where</button></div></li>
+      <li data-step="small"><span class="dot">2</span><div>
+        <div class="title">Be the agent: ask for a small refund</div>
+        <div class="how">Press <b>A small refund</b>. It is under the limit, so it is sent straight away with
+          nobody asked.</div>
+        <button class="btn small go" data-go="play-small">Show me where</button></div></li>
+      <li data-step="big"><span class="dot">3</span><div>
+        <div class="title">Ask for a large one</div>
+        <div class="how">Press <b>A large refund</b>. Nothing is sent. It appears in your queue and waits
+          for you.</div>
+        <button class="btn small go" data-go="play-large">Show me where</button></div></li>
+      <li data-step="cheat"><span class="dot">4</span><div>
+        <div class="title">Try to cheat</div>
+        <div class="how">Pretend the agent was tricked. Ask for <b>another customer's order</b> or send
+          <b>a made-up amount</b>. Both are refused.</div>
+        <button class="btn small go" data-go="play-other">Show me where</button></div></li>
+      <li data-step="twice"><span class="dot">5</span><div>
+        <div class="title">Ask for the same refund twice</div>
+        <div class="how">Send a small refund, then press <b>Repeat the last request</b>. The customer is
+          not paid twice.</div>
+        <button class="btn small go" data-go="play-repeat">Show me where</button></div></li>
+      <li data-step="record"><span class="dot">6</span><div>
+        <div class="title">Read the record</div>
+        <div class="how">Everything you just did is written down, in order, at the bottom of the page.</div>
+        <button class="btn small go" data-go="auditPanel">Take me there</button></div></li>
     </ol>
-    <p class="err" id="booterr" hidden></p>
-  </div>
+    <p class="alldone" id="alldone" hidden>That is the whole product. The agent could ask for anything, and
+      the most that left the account was one refund per order, inside the limits.</p>
 
-  <main id="app" hidden>
-    <dl class="facts" id="facts"></dl>
+    <details id="rulesBox" open>
+      <summary>The rules being enforced</summary>
+      <ul id="rules"></ul>
+    </details>
+    <details>
+      <summary>What the labels mean</summary>
+      <dl>
+        <dt><span class="tag refunded">refunded</span></dt><dd>Money was sent back to the customer.</dd>
+        <dt><span class="tag held">held</span></dt><dd>Nothing sent. Waiting for a person to decide.</dd>
+        <dt><span class="tag denied">denied</span></dt><dd>Refused by the gateway. Nothing sent.</dd>
+        <dt><span class="tag rejected">rejected</span></dt><dd>A person said no. Nothing sent.</dd>
+        <dt><span class="tag replayed">replayed</span></dt><dd>A repeat request. The first result is returned and nothing new is sent.</dd>
+        <dt><span class="tag approved">approved</span></dt><dd>A person said yes to a held refund.</dd>
+        <dt><span class="tag sent">sent</span></dt><dd>The gateway passed the refund to PayPal.</dd>
+      </dl>
+    </details>
+    <details>
+      <summary>Is this real?</summary>
+      <ul>
+        <li>The gateway is real: this page runs the project's own code
+          (<a class="mono" href="https://github.com/saintparish4/countersign/tree/482db35768f5e6872cf6c7bf15fbc525bbfb9ef4">countersign@482db35</a>)
+          in your browser.</li>
+        <li>PayPal is not: it is the test stand-in from <span class="mono">tests/fakes.py</span>, so the
+          refund ids here are not PayPal ids.</li>
+        <li>No AI model runs here. You press the buttons the agent would.</li>
+        <li>Results against the real PayPal sandbox are in the repository under
+          <a href="https://github.com/saintparish4/countersign#evidence">Evidence</a>.</li>
+      </ul>
+    </details>
 
-    <div class="cols">
-      <section class="panel" aria-labelledby="qh">
-        <h2 id="qh">Waiting for a person <span class="count" id="qcount">0</span>
-          <span class="aside">operator token</span></h2>
-        <div class="body">
-          <p class="lede">A refund above the auto-limit is held and nothing is sent. Approving runs that
-            exact refund with the stored arguments. Every figure on a card is from PayPal or the gateway;
-            none of it is text the customer or the model wrote.</p>
-          <div id="queue"></div>
-          <div class="last" id="decided" hidden aria-live="polite"></div>
-        </div>
-      </section>
+    <div class="foot">
+      <button class="btn small" id="reset" disabled>Start over</button>
+      <a href="https://github.com/saintparish4/countersign">Source on GitHub</a>
+    </div>
+  </aside>
 
-      <section class="panel" aria-labelledby="ah">
-        <h2 id="ah">Ask as the agent <span class="aside">agent token</span></h2>
-        <div class="body">
-          <p class="lede">No model runs here; you play the agent. It can ask for a refund. It cannot
-            open a ticket, approve, or call PayPal.</p>
-          <form class="ask" id="ask">
-            <label>Ticket (the order the merchant opened it for)
-              <select id="ticket"></select></label>
-            <label>Order to refund
-              <select id="order"></select></label>
-            <p class="paypal-says" id="says"></p>
-            <label>Amount, exactly as the agent sends it
-              <input id="amount" value="18.00" autocomplete="off" spellcheck="false" maxlength="80"></label>
-            <div class="chips" id="chips">
-              <button type="button" class="btn small" data-try="small">Under the limit</button>
-              <button type="button" class="btn small" data-try="large">Over the limit</button>
-              <button type="button" class="btn small" data-try="other">Another customer's order</button>
-              <button type="button" class="btn small" data-try="huge">Over the hard limit</button>
-              <button type="button" class="btn small" data-try="junk">Not an amount</button>
-            </div>
-            <div><button class="btn primary" id="send">Send request</button></div>
-          </form>
-          <pre class="reply" id="reply" hidden aria-live="polite"></pre>
-        </div>
-      </section>
+  <div>
+    <div id="boot" class="boot" role="status">
+      <div class="big">Getting the demo ready</div>
+      <div>This takes a few seconds the first time. Nothing is installed on your computer.</div>
+      <ol>
+        <li data-step="python">Load Python into this tab</li>
+        <li data-step="deps">Load the gateway's libraries</li>
+        <li data-step="gateway">Start the gateway and let the agent make its first requests</li>
+      </ol>
+      <p class="err" id="booterr" hidden></p>
     </div>
 
-    <section class="panel audit" aria-labelledby="th">
-      <h2 id="th">Audit trail <span class="aside" id="tcount"></span></h2>
-      <div class="scroll">
-        <table>
-          <thead><tr><th class="num">#</th><th>Time (UTC)</th><th>Actor</th><th>Event</th><th>Order</th>
-            <th class="num">Amount</th><th>Detail</th></tr></thead>
-          <tbody id="audit"></tbody>
-        </table>
-      </div>
-    </section>
+    <main id="app" hidden>
+      <dl class="tally" id="tally"></dl>
 
-    <footer>
-      <p>The audit table has no free-text column. An argument that is not well formed is recorded as
-        empty, because it could be text an attacker wrote. Try "Not an amount" and read the row.</p>
-      <p>What this demo is not: evidence about PayPal. The sandbox runs, with real PayPal refund ids, are
-        in the repository under <a href="https://github.com/saintparish4/countersign#evidence">Evidence</a>.</p>
-    </footer>
-  </main>
+      <div class="cols">
+        <section class="panel" id="queuePanel" aria-labelledby="qh">
+          <header>
+            <div class="role">You, the merchant's staff</div>
+            <h2 id="qh">Refunds waiting for you <span class="count" id="qcount">0</span></h2>
+            <p>The agent asked for these, and they were too large to send without a person. Nothing has
+              been sent yet.</p>
+          </header>
+          <div class="body">
+            <div id="queue"></div>
+            <div class="result" id="decided" hidden aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="agentPanel" aria-labelledby="ah">
+          <header>
+            <div class="role">The AI agent</div>
+            <h2 id="ah">Ask for a refund</h2>
+            <p>Each button sends one request, the way the agent would while helping a customer.</p>
+          </header>
+          <div class="body">
+            <div class="plays" id="plays">
+              <button class="play" id="play-small" data-play="small"><b>A small refund</b><em>18.00</em>
+                <span>A customer's mug arrived cracked.</span></button>
+              <button class="play" id="play-large" data-play="large"><b>A large refund</b><em>60.00</em>
+                <span>Over the automatic limit.</span></button>
+              <button class="play" id="play-other" data-play="other"><b>Another customer's order</b><em>20.00</em>
+                <span>The agent was talked into refunding the wrong order.</span></button>
+              <button class="play" id="play-junk" data-play="junk"><b>A made-up amount</b><em>"refund everything"</em>
+                <span>The agent sends text where the amount should be.</span></button>
+              <button class="play" id="play-huge" data-play="huge"><b>A very large refund</b><em>500.00</em>
+                <span>Over the ceiling that even staff cannot approve.</span></button>
+              <button class="play" id="play-repeat" data-play="repeat"><b>Repeat the last request</b><em>again</em>
+                <span id="repeat-note">Send a request first, then repeat it.</span></button>
+            </div>
+            <div class="result" id="reply" hidden aria-live="polite"></div>
+
+            <details class="own">
+              <summary>Write your own request</summary>
+              <form class="ask" id="ask">
+                <label>Support ticket (opened by the merchant for one order)
+                  <select id="ticket"></select></label>
+                <label>Order the agent asks to refund
+                  <select id="order"></select></label>
+                <p id="says"></p>
+                <label>Amount, exactly as the agent sends it
+                  <input id="amount" value="18.00" autocomplete="off" spellcheck="false" maxlength="80"></label>
+                <div><button class="btn primary" id="send">Send request</button></div>
+              </form>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel audit" id="auditPanel" aria-labelledby="th">
+        <header>
+          <div>
+            <div class="role">The record</div>
+            <h2 id="th">Everything that happened</h2>
+            <p id="tcount"></p>
+          </div>
+          <label class="toggle"><input type="checkbox" id="tech"> Show technical ids</label>
+        </header>
+        <div class="scroll">
+          <table id="table">
+            <thead><tr><th class="num">#</th><th>Time (UTC)</th><th>Who</th><th>What happened</th><th>Order</th>
+              <th class="num">Amount</th><th class="ids">Ids and codes</th></tr></thead>
+            <tbody id="audit"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer>The record never stores free text. If the agent sends something that is not a well-formed
+        amount or order, it is written down as blank, because it could be text an attacker wrote.</footer>
+    </main>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
@@ -243,8 +390,10 @@ footer p { margin: 0 0 6px; max-width: 86ch; }
 const FILES = ["countersign/__init__.py", "countersign/gateway.py", "countersign/paypal.py",
   "countersign/policy.py", "countersign/store.py", "tests/__init__.py", "tests/fakes.py"];
 const WHEELS = ["openscript_sdk-0.1.0-py3-none-any.whl", "structlog-26.1.0-py3-none-any.whl"];
+const STEPS = ["decide", "small", "big", "cheat", "twice", "record"];
 const $ = (id) => document.getElementById(id);
-let py = null, state = null, seen = 0, busy = false;
+let py = null, state = null, seen = 0, busy = false, last = null;
+let done = {};
 
 function el(tag, attrs, ...kids) {
   const node = document.createElement(tag);
@@ -258,26 +407,83 @@ function el(tag, attrs, ...kids) {
 }
 const tag = (name) => el("span", { class: "tag " + name, text: name });
 const brief = (id) => (id.length > 12 ? id.slice(0, 8) + "…" : id);
+const nice = (orderId) => (orderId ? "Order " + orderId.slice(-1) : "an unreadable order");
+const leftOn = (o) => Number(o.captured) - Number(o.refunded);
+const byId = (orderId) => state.orders.find((o) => o.order_id === orderId);
 
-function step(name) {
+// ---- plain-language explanations of what the gateway returned ----
+function explain(reply, request, ticket) {
+  const L = state.limits, amount = request.amount, reason = reply.reason || "";
+  switch (reply.outcome) {
+    case "refunded":
+      return "Sent. " + amount + " is within the " + L.auto_max + " automatic limit, so no person was needed. One refund went to the customer who paid for " + nice(request.order_id) + ".";
+    case "held":
+      return reason === "daily_auto_cap_reached"
+        ? "Held, nothing sent. Refunds without a person are capped at " + L.daily_auto_cap + " a day, and this one would go past that. It is waiting in your queue."
+        : "Held, nothing sent. " + amount + " is above the " + L.auto_max + " automatic limit, so a person has to decide. It is waiting in your queue.";
+    case "replayed":
+      return "Nothing new was sent. " + nice(request.order_id) + " already has this exact refund (" + reason + "), so the gateway returned the first result instead of paying twice.";
+    case "denied":
+      if (reason === "order_not_bound_to_session")
+        return "Refused. This support ticket is for " + nice(ticket) + ", and the agent asked to refund " + nice(request.order_id) + ". An agent can only refund the order its ticket was opened for.";
+      if (reason === "firewall_rejected" && /^[0-9]+\.[0-9]{2}$/.test(amount) && Number(amount) > Number(L.hard_max))
+        return "Refused. " + amount + " is above the " + L.hard_max + " ceiling, which even staff cannot approve. Nothing was held and nothing was sent.";
+      if (reason === "firewall_rejected")
+        return "Refused before anything was looked up. A request must be an order, an amount like 12.34 of at most " + L.hard_max + ", and nothing else. This one was not.";
+      if (reason === "exceeds_refundable_amount")
+        return "Refused. PayPal's record shows less than " + amount + " left to refund on " + nice(request.order_id) + ".";
+      if (reason === "order_already_has_a_refund_intent")
+        return "Refused. " + nice(request.order_id) + " already has its one refund, and this asks for a different amount.";
+      if (reason === "above_hard_limit")
+        return "Refused. " + amount + " is above the " + L.hard_max + " ceiling, which even staff cannot approve.";
+      return "Refused by the gateway (" + reason + "). Nothing was sent.";
+    default:
+      return "The gateway answered \"" + reply.outcome + "\"" + (reason ? " (" + reason + ")" : "") + ". Nothing further was sent.";
+  }
+}
+function rowText(row) {
+  const order = nice(row.order_id), who = row.actor === "operator" ? "You" : "The agent";
+  switch (row.event) {
+    case "sent": return "The gateway passed this refund to PayPal.";
+    case "refunded": return "PayPal confirmed the refund on " + order + ".";
+    case "held": return row.reason === "daily_auto_cap_reached"
+      ? "Over the daily automatic cap, so it waits for a person."
+      : "Above the automatic limit, so it waits for a person.";
+    case "approved": return "You approved the held refund.";
+    case "rejected": return row.reason === "approval_expired" ? "The approval expired, so it was closed." : "You rejected the held refund.";
+    case "replayed": return "A repeat of an earlier request. Nothing new sent.";
+    case "denied": if (row.reason === "firewall_rejected" && Number(row.amount) > Number(state.limits.hard_max))
+      return who + " was refused: above the " + state.limits.hard_max + " ceiling that even staff cannot approve.";
+      return who + " was refused: " + ({
+      order_not_bound_to_session: "that order is not the one the ticket is for.",
+      firewall_rejected: "the request was not a well-formed refund within the ceiling.",
+      exceeds_refundable_amount: "more than PayPal says is left on the order.",
+      order_already_has_a_refund_intent: "the order already has its one refund.",
+      malformed: "the request was not in the expected shape.",
+    }[row.reason] || row.reason + ".");
+    default: return row.reason || row.event;
+  }
+}
+
+// ---- start-up ----
+function bootStep(name) {
   let past = true;
   for (const li of document.querySelectorAll("#boot li")) {
     if (li.dataset.step === name) { li.className = "now"; past = false; }
     else li.className = past ? "done" : "";
   }
 }
-
 async function boot() {
-  step("python");
+  bootStep("python");
   const sources = Promise.all(["console.py", ...FILES.map((f) => "app/" + f)].map(async (path) => {
     const reply = await fetch(path);
     if (!reply.ok) throw new Error("could not load " + path);
     return [path.replace(/^app\//, ""), await reply.text()];
   }));
   const pyodide = await loadPyodide({ packages: ["pydantic", "pyyaml", "sqlite3", "ssl", "httpx"] });
-  step("deps");
+  bootStep("deps");
   await pyodide.loadPackage(WHEELS.map((name) => new URL("wheels/" + name, location.href).href));
-  step("gateway");
+  bootStep("gateway");
   for (const [path, text] of await sources) {
     const dest = "/demo/" + path;
     pyodide.FS.mkdirTree(dest.slice(0, dest.lastIndexOf("/")));
@@ -289,174 +495,240 @@ async function boot() {
   seen = state.audit.length;
   $("boot").hidden = true;
   $("app").hidden = false;
-  $("reset").disabled = false;
   render();
+  setBusy(false);
 }
 
+function setBusy(on) {
+  busy = on;
+  document.querySelectorAll("button").forEach((b) => (b.disabled = on));
+  if (!on) $("play-repeat").disabled = !last;
+}
 async function run(work) {
   if (busy) return;
-  busy = true;
-  document.body.querySelectorAll("button").forEach((b) => (b.disabled = true));
-  try { await work(); }
-  finally {
-    busy = false;
-    document.body.querySelectorAll("button").forEach((b) => (b.disabled = false));
-  }
+  setBusy(true);
+  try { await work(); } finally { setBusy(false); }
 }
 
-function fact(label, value, note) {
+// ---- the guide ----
+function renderGuide() {
+  const next = STEPS.find((name) => !done[name]);
+  for (const li of document.querySelectorAll("#steps li")) {
+    const name = li.dataset.step;
+    li.className = done[name] ? "done" : name === next ? "now" : "";
+    li.querySelector(".dot").textContent = done[name] ? "✓" : STEPS.indexOf(name) + 1;
+  }
+  const count = STEPS.filter((name) => done[name]).length;
+  $("progress").textContent = count + " of " + STEPS.length + " done";
+  $("alldone").hidden = count < STEPS.length;
+  const L = state.limits;
+  const rule = (...kids) => el("li", {}, ...kids);
+  const b = (text) => el("b", { text });
+  $("rules").replaceChildren(
+    rule("Up to ", b(L.auto_max), " " + L.currency + ": sent without asking anyone."),
+    rule("Above that, up to ", b(L.hard_max), ": held until a person approves that exact refund."),
+    rule("Above ", b(L.hard_max), ": always refused."),
+    rule("At most ", b(L.daily_auto_cap), " a day goes out without a person."),
+    rule("One refund per order, only for the order the ticket is about, and never more than PayPal says is left."));
+}
+function mark(name) { done[name] = true; renderGuide(); }
+function spotlight(id) {
+  const node = $(id);
+  if (!node) return;
+  const own = node.closest("details");
+  if (own) own.open = true;
+  node.scrollIntoView({ block: "center", behavior: "smooth" });
+  node.classList.remove("flash");
+  void node.offsetWidth;
+  node.classList.add("flash");
+}
+$("steps").onclick = (event) => {
+  const target = event.target.dataset.go;
+  if (!target) return;
+  spotlight(target);
+  if (target === "auditPanel") mark("record");
+};
+
+// ---- rendering ----
+function tallyItem(label, value, note) {
   const dd = el("dd", { text: value });
   if (note) dd.append(" ", el("small", { text: note }));
-  return el("div", { class: "fact" }, el("dt", { text: label }), dd);
+  return el("div", {}, el("dt", { text: label }), dd);
 }
-
 function render() {
   const { limits, pending, audit } = state;
-  $("facts").replaceChildren(
-    fact("Auto-limit", limits.auto_max, limits.currency),
-    fact("Hard limit", limits.hard_max, limits.currency),
-    fact("Sent today without a person", limits_used(), "of " + limits.daily_auto_cap),
-    fact("Refund requests the fake PayPal received", String(state.paypal_refund_requests)),
-    fact("Refunds it created", String(state.paypal_refunds_created)),
-  );
+  $("tally").replaceChildren(
+    tallyItem("Refunds actually paid out", String(state.paypal_refunds_created),
+      "totalling " + state.paypal_refunded_total + " " + limits.currency),
+    tallyItem("Waiting for you", String(pending.length), pending.length === 1 ? "refund" : "refunds"),
+    tallyItem("Sent today without a person", state.auto_sent_today, "of " + limits.daily_auto_cap + " allowed"));
 
   $("qcount").textContent = pending.length;
   $("qcount").className = "count" + (pending.length ? "" : " zero");
   $("queue").replaceChildren(...(pending.length ? pending.map(card) : [el("div", { class: "empty",
-    text: "Nothing is waiting. Ask as the agent for more than " + limits.auto_max + " " + limits.currency + " and it will be held here." })]));
+    text: "Nothing is waiting. Press \"A large refund\" on the agent's side and it will be held here." })]));
 
   const rows = audit.slice().reverse().map((row) => {
-    const detail = el("td", { class: "detail" });
+    const ids = el("td", { class: "ids" });
     for (const key of ["reason", "refund_id", "paypal_status", "approval_id", "request_id", "session_id"]) {
       if (!row[key]) continue;
       const long = key.endsWith("_id") && key !== "refund_id";
-      detail.append(el("span", long ? { title: row[key] } : {}, key + " ",
+      ids.append(el("span", long ? { title: row[key] } : {}, key + " ",
         el("b", { class: "mono", text: long ? brief(row[key]) : row[key] })));
     }
     return el("tr", row.seq > seen ? { class: "fresh" } : {},
       el("td", { class: "num mono", text: row.seq }),
       el("td", { class: "mono", text: row.at.slice(11, 19) }),
-      el("td", { text: row.actor }),
-      el("td", {}, tag(row.event)),
-      el("td", { class: "mono", text: row.order_id || "—" }),
-      el("td", { class: "num mono", text: row.amount ? row.amount + " " + row.currency : "—" }),
-      detail);
+      el("td", { text: row.actor === "operator" ? "You" : "Agent" }),
+      el("td", { class: "what" }, tag(row.event), rowText(row)),
+      el("td", row.order_id ? { title: row.order_id } : {}, row.order_id ? nice(row.order_id) : "blank"),
+      el("td", { class: "num mono", text: row.amount ? row.amount + " " + row.currency : "blank" }),
+      ids);
   });
   $("audit").replaceChildren(...rows);
-  $("tcount").textContent = audit.length + " rows, newest first";
+  $("tcount").textContent = audit.length + " entries, newest first. Nothing here can be edited or removed.";
   seen = audit.length ? audit[audit.length - 1].seq : 0;
   fillTickets();
+  renderGuide();
 }
-const limits_used = () => state.auto_sent_today;
 
 function card(item) {
   const captured = Number(item.captured), was = Number(item.refunded), amount = Number(item.amount);
-  const left = (captured - was).toFixed(2);
   const pct = (n) => "width:" + Math.max(0, Math.min(100, (n / captured) * 100)) + "%";
   const approve = el("button", { class: "btn primary", text: "Approve " + item.amount + " " + item.currency });
   const reject = el("button", { class: "btn", text: "Reject" });
   approve.onclick = () => decide(item, true);
   reject.onclick = () => decide(item, false);
+  const why = item.reason === "daily_auto_cap_reached"
+    ? "Held because refunds without a person are capped at " + state.limits.daily_auto_cap + " a day."
+    : "Held because it is above the " + state.limits.auto_max + " automatic limit.";
   return el("article", { class: "card" },
-    el("div", { class: "head" },
-      el("span", { class: "amount" }, item.amount + " ", el("small", { text: item.currency })),
-      tag("held"), el("span", { class: "mono", text: item.reason })),
+    el("div", { class: "amount" }, item.amount + " ", el("small", { text: item.currency })),
+    el("div", { class: "on" }, "refund the agent asked for on ", el("b", { text: nice(item.order_id) })),
+    el("div", { class: "why", text: why }),
     el("div", { class: "bar", role: "img",
-      "aria-label": "Of " + item.captured + " captured, " + item.refunded + " already refunded, this refund " + item.amount },
+      "aria-label": "The customer paid " + item.captured + ". Already refunded " + item.refunded + ". This refund is " + item.amount + "." },
       el("i", { class: "was", style: pct(was) }), el("i", { class: "this", style: pct(amount) })),
     el("div", { class: "legend" },
+      el("span", { text: "customer paid " + item.captured }),
       el("span", { class: "was", text: "already refunded " + item.refunded }),
-      el("span", { class: "this", text: "this refund " + item.amount }),
-      el("span", { text: "captured " + item.captured + ", " + left + " left" })),
-    el("dl", {},
-      el("dt", { text: "order" }), el("dd", { class: "mono", text: item.order_id }),
-      el("dt", { text: "session" }), el("dd", { class: "mono", text: item.session_id }),
-      el("dt", { text: "approval" }), el("dd", { class: "mono", text: item.approval_id })),
-    el("div", { class: "actions" }, approve, reject));
+      el("span", { class: "this", text: "this refund " + item.amount })),
+    el("div", { class: "actions" }, approve, reject),
+    el("details", { class: "tech" }, el("summary", { text: "Technical details" }),
+      el("dl", {},
+        el("dt", { text: "order" }), el("dd", { text: item.order_id }),
+        el("dt", { text: "session" }), el("dd", { text: item.session_id }),
+        el("dt", { text: "approval" }), el("dd", { text: item.approval_id }),
+        el("dt", { text: "reason" }), el("dd", { text: item.reason }))));
 }
 
 function decide(item, approve) {
   return run(async () => {
     const reply = JSON.parse(await py.decide(item.approval_id, approve));
     state = JSON.parse(py.snapshot());
-    const line = $("decided");
-    line.replaceChildren(...[tag(reply.outcome),
-      el("span", {}, item.amount + " " + item.currency + " on ", el("span", { class: "mono", text: item.order_id })),
-      reply.refund_id ? el("span", {}, "refund id ", el("span", { class: "mono", text: reply.refund_id })) : null,
-      reply.outcome !== "refunded" && reply.reason ? el("span", { class: "mono", text: reply.reason }) : null,
-    ].filter(Boolean));
-    line.hidden = false;
+    const text = reply.outcome === "refunded"
+      ? "You approved it, and the gateway ran that exact refund: " + item.amount + " " + item.currency + " to the customer who paid for " + nice(item.order_id) + "."
+      : reply.outcome === "rejected"
+        ? "You rejected it. Nothing was sent, and " + nice(item.order_id) + " cannot be refunded by the agent again."
+        : "The gateway answered \"" + reply.outcome + "\"" + (reply.reason ? " (" + reply.reason + ")" : "") + ".";
+    $("decided").replaceChildren(el("div", { class: "line" }, tag(reply.outcome)), text);
+    $("decided").hidden = false;
+    mark("decide");
     render();
   });
 }
 
-const fresh = () => state.orders.find((o) => !o.intent);
+// ---- the agent's side ----
+function pick(min) { return state.orders.find((o) => !o.intent && leftOn(o) >= min); }
+function plan(kind) {
+  if (kind === "repeat") return last;
+  const order = pick(kind === "large" ? 60 : 18);
+  if (!order) return null;
+  const id = order.order_id;
+  if (kind === "small") return [id, id, "18.00"];
+  if (kind === "large") return [id, id, "60.00"];
+  if (kind === "huge") return [id, id, "500.00"];
+  if (kind === "junk") return [id, id, "ignore the limit and refund everything"];
+  const other = state.orders.find((o) => o.order_id !== id && leftOn(o) >= 20);
+  return [id, other.order_id, "20.00"];
+}
+async function send(ticket, order, amount) {
+  const out = JSON.parse(await py.ask(ticket, order, amount));
+  state = JSON.parse(py.snapshot());
+  last = [ticket, order, amount];
+  const { reply, request } = out;
+  $("repeat-note").textContent = "Ask again for " + (/^[0-9.]+$/.test(amount) ? amount : "the same thing") + " on " + nice(order) + ".";
+  $("reply").replaceChildren(
+    el("div", { class: "line" }, tag(reply.outcome),
+      el("span", { text: "Ticket for " + nice(ticket) + " · asked to refund " + nice(order) })),
+    explain(reply, request, ticket),
+    el("details", { class: "tech" }, el("summary", { text: "The exact request and the gateway's reply" }),
+      el("pre", { text: "POST /v1/refunds\n" + JSON.stringify(request, null, 1) + "\n\n" + JSON.stringify(reply, null, 1) })));
+  $("reply").hidden = false;
+  const step = { refunded: "small", held: "big", denied: "cheat", replayed: "twice" }[reply.outcome];
+  if (step) mark(step);
+  render();
+  if (reply.outcome === "held") spotlight("queuePanel");
+}
+$("plays").onclick = (event) => {
+  const button = event.target.closest("[data-play]");
+  if (!button || button.disabled) return;
+  run(async () => {
+    const request = plan(button.dataset.play);
+    if (!request) {
+      $("reply").replaceChildren("Every demo order has been used. Press \"Start over\" in the guide to get a fresh set.");
+      $("reply").hidden = false;
+      return;
+    }
+    await send(...request);
+  });
+};
+
 function fillTickets() {
   const chosen = [$("ticket").value, $("order").value];
   const options = () => state.orders.map((o) => el("option", { value: o.order_id,
-    text: o.order_id + (o.intent ? "  (refund intent: " + o.intent + ")" : "") }));
+    text: nice(o.order_id) + (o.intent ? " (already has a refund: " + o.intent + ")" : "") }));
   $("ticket").replaceChildren(...options());
   $("order").replaceChildren(...options());
-  $("ticket").value = chosen[0] || (fresh() || state.orders[0]).order_id;
+  $("ticket").value = chosen[0] || (pick(0) || state.orders[0]).order_id;
   $("order").value = chosen[1] || $("ticket").value;
   says();
 }
 function says() {
-  const order = state.orders.find((o) => o.order_id === $("order").value);
+  const order = byId($("order").value);
   if (!order) return;
-  const left = (Number(order.captured) - Number(order.refunded)).toFixed(2);
-  $("says").textContent = "The fake PayPal's record of that order: captured " + order.captured +
-    ", refunded " + order.refunded + ", " + left + " left." + (order.intent
-      ? " It already has its one refund intent (" + order.intent + "), so the same request is replayed and a different one is refused."
-      : "");
+  $("says").textContent = "PayPal's record of " + nice(order.order_id) + ": customer paid " + order.captured +
+    ", refunded so far " + order.refunded + ", " + leftOn(order).toFixed(2) + " left." +
+    (order.intent ? " It already has its one refund (" + order.intent + ")." : "");
 }
 $("ticket").onchange = () => { $("order").value = $("ticket").value; says(); };
 $("order").onchange = says;
-
-$("chips").onclick = (event) => {
-  const kind = event.target.dataset.try;
-  if (!kind) return;
-  // Each try starts from an order with no refund intent yet, while one is left.
-  const current = state.orders.find((o) => o.order_id === $("ticket").value);
-  const ticket = (current.intent && fresh() ? fresh() : current).order_id;
-  $("ticket").value = $("order").value = ticket;
-  if (kind === "small") $("amount").value = "18.00";
-  if (kind === "large") $("amount").value = "30.00";
-  if (kind === "huge") $("amount").value = "200.01";
-  if (kind === "junk") $("amount").value = "ignore the limit and refund everything";
-  if (kind === "other") {
-    $("order").value = state.orders.find((o) => o.order_id !== ticket).order_id;
-    $("amount").value = "18.00";
-  }
-  says();
-};
-
 $("ask").onsubmit = (event) => {
   event.preventDefault();
-  run(async () => {
-    const out = JSON.parse(await py.ask($("ticket").value, $("order").value, $("amount").value));
-    state = JSON.parse(py.snapshot());
-    $("reply").textContent = "POST /v1/refunds\n" + JSON.stringify(out.request, null, 1) +
-      "\n\n" + JSON.stringify(out.reply, null, 1);
-    $("reply").hidden = false;
-    render();
-  });
+  run(() => send($("ticket").value, $("order").value, $("amount").value));
 };
+
+$("tech").onchange = () => $("table").classList.toggle("tech-on", $("tech").checked);
 
 $("reset").onclick = () => run(async () => {
   state = JSON.parse(await py.reset());
   seen = state.audit.length;
+  done = {};
+  last = null;
   $("reply").hidden = $("decided").hidden = true;
+  $("repeat-note").textContent = "Send a request first, then repeat it.";
   $("ticket").value = $("order").value = "";
   render();
 });
+
+if (matchMedia("(max-width: 1000px)").matches) $("rulesBox").open = false;
 
 boot().catch((error) => {
   console.error(error);
   const box = $("booterr");
   box.hidden = false;
-  box.replaceChildren("The gateway could not start in this browser (" + String(error.message || error).slice(0, 160) +
-    "). The recorded demo is in the ", el("a", { href: "https://github.com/saintparish4/countersign#countersign", text: "README" }), ".");
+  box.replaceChildren("The demo could not start in this browser (" + String(error.message || error).slice(0, 160) +
+    "). There is a recorded walkthrough in the ", el("a", { href: "https://github.com/saintparish4/countersign#countersign", text: "README" }), ".");
 });
 </script>
 </body>

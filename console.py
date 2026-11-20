@@ -23,6 +23,14 @@ ORDERS = (
     ("ORDER00000000000F", "32.50", "0.00"),
     ("ORDER00000000000G", "120.00", "0.00"),
     ("ORDER00000000000H", "75.00", "0.00"),
+    ("ORDER00000000000J", "64.00", "0.00"),
+    ("ORDER00000000000K", "210.00", "0.00"),
+    ("ORDER00000000000L", "48.00", "0.00"),
+    ("ORDER00000000000M", "150.00", "0.00"),
+    ("ORDER00000000000N", "89.99", "0.00"),
+    ("ORDER00000000000P", "300.00", "0.00"),
+    ("ORDER00000000000Q", "54.00", "0.00"),
+    ("ORDER00000000000R", "135.00", "0.00"),
 )
 # (the ticket's order, the order asked for, amount): what the agent asks before you arrive
 SEED = (
@@ -98,5 +106,6 @@ def snapshot() -> str:
             "auto_sent_today": f"{sum(map(Decimal, store.auto_refunds_today()), Decimal('0')):.2f}",
             "paypal_refund_requests": len(fake.requests),
             "paypal_refunds_created": len(fake.applied),
+            "paypal_refunded_total": f"{sum((Decimal(r['refund']['amount']['value']) for r in fake.applied.values()), Decimal('0')):.2f}",
         }
     )

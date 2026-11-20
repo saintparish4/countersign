@@ -1,7 +1,8 @@
 # Countersign demo site
 
 This branch is the GitHub Pages site at https://saintparish4.github.io/countersign/.
-It is an operator console (held-refund approval queue and audit trail) that runs the
+It is a guided operator console (a side menu of steps, the held-refund approval queue,
+the agent's side, and the audit trail) that runs the
 gateway in the browser with [Pyodide](https://pyodide.org), against the fake PayPal.
 Nothing here touches PayPal.
 
